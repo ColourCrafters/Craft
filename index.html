@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ColorCrafters</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="wrapper">
+        <h1>ColorCrafters</h1>
+        <header>
+            <h2>Black & White to Color Converter</h2>
+            <p>Upload a black & white photo and get the colorized version instantly.</p>
+        </header>
+
+        <div id="drop-area">
+            <input type="file" id="upload" accept="image/*" hidden>
+            <div id="preview-container">
+                <p>Click or drag & drop to upload</p>
+                <img id="preview" src="" alt="Preview">
+                <div id="loading" class="loading">Processing...</div>
+            </div>
+        </div>
+
+        <button class="convert-btn" id="convert">Convert Image</button>
+        <p>Try these images:</p>
+        <div class="sample-image-list">
+        <img src="input1.jpg" alt="Sample Image 1" class="sample-img">
+        <img src="input2.jpg" alt="Sample Image 2" class="sample-img">
+        <img src="input3.jpg" alt="Sample Image 3" class="sample-img">
+      </div>
+    </div>
+
+    <button class="about-btn" onclick="location.href='about.html'">About</button>
+
+    <script>document.addEventListener("DOMContentLoaded", function () {
+        const dropArea = document.getElementById("drop-area");
+        const uploadInput = document.getElementById("upload");
+        const previewContainer = document.getElementById("preview-container");
+        const previewImage = document.getElementById("preview");
+        const previewText = previewContainer.querySelector("p");
+        const loading = document.getElementById("loading");
+        const convertBtn = document.getElementById("convert");
+    
+        let currentFileName = ""; // Store filename to handle conversions correctly
+    
+        // Click to open file dialog
+        dropArea.addEventListener("click", () => uploadInput.click());
+    
+        // Handle file selection
+        uploadInput.addEventListener("change", handleFile);
+    
+        // Drag & Drop handlers
+        dropArea.addEventListener("dragover", (event) => {
+            event.preventDefault();
+            dropArea.style.background = "rgba(255, 215, 0, 0.1)";
+        });
+    
+        dropArea.addEventListener("dragleave", () => {
+            dropArea.style.background = "transparent";
+        });
+    
+        dropArea.addEventListener("drop", (event) => {
+            event.preventDefault();
+            dropArea.style.background = "transparent";
+            if (event.dataTransfer.files.length) {
+                uploadInput.files = event.dataTransfer.files;
+                handleFile();
+            }
+        });
+    
+        function handleFile() {
+            const file = uploadInput.files[0];
+            if (file) {
+                loading.style.display = "block"; // Show loading animation
+                previewImage.style.display = "none";
+                previewText.style.opacity = "0"; // Hide text
+    
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    setTimeout(() => {
+                        previewImage.src = e.target.result;
+                        previewImage.style.display = "block";
+                        previewImage.style.objectFit = "contain"; 
+                        previewImage.style.maxWidth = "100%";
+                        previewImage.style.maxHeight = "100%";
+                        loading.style.display = "none";
+    
+                        currentFileName = file.name; // Store the filename of uploaded file
+                    }, 1500);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    
+        // Handle Sample Images (if present)
+        const sampleImages = document.querySelectorAll('.sample-img');
+        sampleImages.forEach(img => {
+            img.addEventListener('click', function() {
+                uploadInput.value = ""; // Clear file input
+                previewImage.src = this.src;
+                previewImage.style.display = "block";
+                previewText.style.opacity = "0"; // Hide text
+    
+                // Extract filename from sample image src
+                currentFileName = this.src.split('/').pop(); 
+            });
+        });
+    
+        convertBtn.addEventListener("click", function () {
+            if (!previewImage.src) return;
+    
+            loading.style.display = "block"; // Show loading animation
+            previewImage.style.display = "none";
+    
+            setTimeout(() => {
+                if (currentFileName.startsWith("input")) {
+                    const outputFileName = currentFileName.replace(/input(\d*)/, "output$1");
+                    previewImage.src = `misc/${outputFileName}`; // Use folder path
+                }
+                previewImage.style.display = "block";
+                loading.style.display = "none";
+            }, 2000);
+        });
+    });
+    
+    
+    </script>
+</body>
+</html>
